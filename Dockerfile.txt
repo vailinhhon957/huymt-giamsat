@@ -1,0 +1,28 @@
+# --- Build stage ---
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /app
+
+# Copy project file(s)
+COPY Server/Server.csproj ./Server/
+
+# Chuyển thư mục vào Server để restore
+WORKDIR /app/Server
+RUN dotnet restore
+
+# Copy toàn bộ source code từ thư mục Server
+COPY Server/. ./
+
+# Build và publish
+RUN dotnet publish -c Release -o /app/out
+
+# --- Runtime stage ---
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
+
+# Copy thư mục publish output
+COPY --from=build /app/out ./
+
+ENV ASPNETCORE_URLS=http://+:10000
+EXPOSE 10000
+
+ENTRYPOINT ["dotnet", "Server.dll"]

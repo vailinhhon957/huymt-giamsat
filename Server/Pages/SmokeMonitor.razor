@@ -1,0 +1,74 @@
+﻿@page "/smoke"
+@inject HttpClient Http
+
+<h3>Giám sát Khói</h3>
+
+@if (dataList != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Mức khói (ppm)</th>
+                <th>Trạng thái</th>
+                <th>Thời gian</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var (item, index) in dataList.Select((item, index) => (item, index + 1)))
+            {
+                <tr>
+                    <td>@index</td>
+                    <td>@item.SmokeLevel</td>
+                    <td>@item.Status</td>
+                    <td>@item.Timestamp.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else if (errorMessage != null)
+{
+    <p style="color:red;"><b>Lỗi:</b> @errorMessage</p>
+}
+else
+{
+    <p>Đang tải dữ liệu...</p>
+}
+
+@code {
+    class SmokeData
+    {
+        public double SmokeLevel { get; set; }
+        public string Status { get; set; }
+        public DateTime Timestamp { get; set; }
+    }
+
+    List<SmokeData>? dataList;
+    string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var allData = await Http.GetFromJsonAsync<List<SmokeData>>("http://localhost:5073/api/smoke/status");
+
+            dataList = allData?
+                .OrderByDescending(d => d.Timestamp)
+                .Take(10)
+                .ToList();
+        }
+        catch (HttpRequestException)
+        {
+            errorMessage = "Không thể kết nối tới máy chủ.";
+        }
+        catch (NotSupportedException)
+        {
+            errorMessage = "Phản hồi không đúng định dạng JSON.";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Lỗi không xác định: {ex.Message}";
+        }
+    }
+}
