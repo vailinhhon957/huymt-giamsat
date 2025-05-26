@@ -10,7 +10,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
-
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:5073/") });
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=temperature.db"));
 

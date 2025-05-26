@@ -51,7 +51,7 @@ else
     {
         try
         {
-            var allData = await Http.GetFromJsonAsync<List<SmokeData>>("http://localhost:5073/api/smoke/status");
+            var allData = await Http.GetFromJsonAsync<List<SmokeData>>("api/smoke/status");
 
             dataList = allData?
                 .OrderByDescending(d => d.Timestamp)

@@ -44,7 +44,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var allData = await Http.GetFromJsonAsync<List<TemperatureData>>("http://localhost:5073/api/temperature/status");
+        var allData = await Http.GetFromJsonAsync<List<TemperatureData>>("api/temperature/status"); ;
 
         dataList = allData?
             .OrderByDescending(d => d.Timestamp) // Dữ liệu mới nhất lên đầu
